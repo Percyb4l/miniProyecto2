@@ -17,8 +17,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * The Controller component in MVC for the com.example.sudoku.main.main game board.
- * Handles user input and updates the Model and View.
+ * The Controller component in MVC for the main game board.
+ * Handles user input and updates the Model and View with enhanced styling.
  */
 public class SudokuController implements I_InputHandler {
 
@@ -29,6 +29,8 @@ public class SudokuController implements I_InputHandler {
     @FXML
     private Button helpButton;
     @FXML
+    private Button restartButton;
+    @FXML
     private Label messageLabel;
 
     private SudokuModel model;
@@ -36,17 +38,11 @@ public class SudokuController implements I_InputHandler {
     private TextField selectedCell = null;
     private static final int SIZE = 6;
 
-    /**
-     * Initializes the model. Called automatically after FXML is loaded.
-     */
     @FXML
     public void initialize() {
         this.model = new SudokuModel();
     }
 
-    /**
-     * Dynamically builds the Sudoku board GUI (View).
-     */
     public void initializeBoard() {
         for (int row = 0; row < SIZE; row++) {
             for (int col = 0; col < SIZE; col++) {
@@ -64,49 +60,80 @@ public class SudokuController implements I_InputHandler {
 
     private String getKey(int row, int col) { return row + "_" + col; }
 
-    /**
-     * Creates and configures a TextField for a cell.
-     */
     private TextField createCellField(int row, int col, Cell cellModel) {
         TextField cellField = new TextField(cellModel.getValue() != 0 ? String.valueOf(cellModel.getValue()) : "");
-        cellField.setPrefSize(40, 40);
-        cellField.setMaxSize(40, 40);
+        cellField.setPrefSize(70, 70);
+        cellField.setMinSize(70, 70);
+        cellField.setMaxSize(70, 70);
         cellField.setAlignment(Pos.CENTER);
-        cellField.setFont(Font.font("Arial", 20));
-        cellField.setEditable(!cellModel.isFixed());
+        cellField.setFont(Font.font("Arial", 26));
+        cellField.setEditable(false); // CAMBIO: Deshabilitar edición directa
+        cellField.setFocusTraversable(true);
 
-        // Store context in properties
         cellField.getProperties().put("row", row);
         cellField.getProperties().put("col", col);
 
-        // Attach event handlers (HU-1)
         cellField.setOnMouseClicked(new CellClickHandler(row, col, cellModel.isFixed()));
         cellField.setOnKeyPressed(new KeyInputAdapter(this, row, col));
+
+        cellField.getStyleClass().add("sudoku-cell");
 
         return cellField;
     }
 
-    /**
-     * Applies CSS styling for block separation.
-     */
     private void applyGridStyling(TextField cellField, int row, int col) {
-        String style = "-fx-border-color: black;";
+        StringBuilder style = new StringBuilder();
 
-        if (col % 3 == 2 && col != SIZE - 1) { style += "-fx-border-right-width: 3;"; } else { style += "-fx-border-right-width: 1;"; }
-        if (row % 2 == 1 && row != SIZE - 1) { style += "-fx-border-bottom-width: 3;"; } else { style += "-fx-border-bottom-width: 1;"; }
+        // Bordes base para todas las celdas
+        style.append("-fx-border-style: solid; ");
 
-        if (model.getCell(row, col).isFixed()) {
-            style += " -fx-background-color: #d3d3d3; -fx-font-weight: bold;";
+        // Bordes LEFT
+        if (col == 0) {
+            style.append("-fx-border-left-width: 0; ");
+        } else if (col == 3) {
+            style.append("-fx-border-left-width: 4; -fx-border-left-color: #2C3E50; ");
         } else {
-            style += " -fx-background-color: white;";
+            style.append("-fx-border-left-width: 1; -fx-border-left-color: #BDC3C7; ");
         }
-        cellField.setStyle(style);
+
+        // Bordes RIGHT
+        if (col == 5) {
+            style.append("-fx-border-right-width: 0; ");
+        } else if (col == 2) {
+            style.append("-fx-border-right-width: 4; -fx-border-right-color: #2C3E50; ");
+        } else {
+            style.append("-fx-border-right-width: 1; -fx-border-right-color: #BDC3C7; ");
+        }
+
+        // Bordes TOP
+        if (row == 0) {
+            style.append("-fx-border-top-width: 0; ");
+        } else if (row == 2 || row == 4) {
+            style.append("-fx-border-top-width: 4; -fx-border-top-color: #2C3E50; ");
+        } else {
+            style.append("-fx-border-top-width: 1; -fx-border-top-color: #BDC3C7; ");
+        }
+
+        // Bordes BOTTOM
+        if (row == 5) {
+            style.append("-fx-border-bottom-width: 0; ");
+        } else if (row == 1 || row == 3) {
+            style.append("-fx-border-bottom-width: 4; -fx-border-bottom-color: #2C3E50; ");
+        } else {
+            style.append("-fx-border-bottom-width: 1; -fx-border-bottom-color: #BDC3C7; ");
+        }
+
+        // Estilos de color según tipo de celda
+        if (model.getCell(row, col).isFixed()) {
+            style.append("-fx-background-color: #E8EAF6; -fx-font-weight: bold; -fx-text-fill: #3F51B5; ");
+            cellField.getStyleClass().add("sudoku-cell-fixed");
+        } else {
+            style.append("-fx-background-color: white; -fx-text-fill: #2C3E50; ");
+        }
+
+        cellField.setStyle(style.toString());
     }
 
-    /**
-     * Internal Class for handling Mouse Click events on cells (Criterio: Clases Internas).
-     * Handles cell selection (HU-1).
-     */
     private class CellClickHandler implements javafx.event.EventHandler<MouseEvent> {
         private final int row, col;
         private final boolean isFixed;
@@ -136,9 +163,6 @@ public class SudokuController implements I_InputHandler {
         }
     }
 
-    /**
-     * Implements I_InputHandler. Processes keyboard input (HU-1).
-     */
     @Override
     public void handleKeyInput(int row, int col, KeyEvent keyEvent) {
         if (selectedCell == null || !selectedCell.getProperties().get("row").equals(row)) {
@@ -151,10 +175,10 @@ public class SudokuController implements I_InputHandler {
         if (key.matches("[1-6]")) {
             value = Integer.parseInt(key);
         } else if (keyEvent.getCode() == KeyCode.BACK_SPACE || keyEvent.getCode() == KeyCode.DELETE) {
-            value = 0; // Empty the cell
+            value = 0;
         } else {
-            // MODIFICACIÓN: Muestra alerta para entradas inválidas
-            showAlert(Alert.AlertType.WARNING, "Entrada Inválida", "Por favor, ingresa únicamente números del 1 al 6.");
+            showAlert(Alert.AlertType.WARNING, "Entrada Inválida",
+                    "Por favor, ingresa únicamente números del 1 al 6.");
             keyEvent.consume();
             return;
         }
@@ -167,9 +191,6 @@ public class SudokuController implements I_InputHandler {
         }
     }
 
-    /**
-     * Updates all TextField elements based on the Model state (HU-2).
-     */
     public void updateView() {
         for (int row = 0; row < SIZE; row++) {
             for (int col = 0; col < SIZE; col++) {
@@ -181,69 +202,135 @@ public class SudokuController implements I_InputHandler {
                 updateCellStyling(cellField, isSelected, cellModel.isError());
             }
         }
-        messageLabel.setText("Click a cell and use 1-6 keys to play.");
+        messageLabel.setText("👆 Haz clic en una celda y usa las teclas 1-6 para jugar");
     }
 
-    /**
-     * Applies styling for selection and error.
-     */
     private void updateCellStyling(TextField cellField, boolean isSelected, boolean isError) {
-        String baseStyle = cellField.getStyle().replaceAll(" -fx-background-color: #[a-fA-F0-9]{6};", "");
-        if (isError) {
-            baseStyle += " -fx-background-color: #ffcccc; -fx-text-fill: red;";
-        } else if (isSelected) {
-            baseStyle += " -fx-background-color: #add8e6; -fx-text-fill: black;";
-        } else if (model.getCell((int)cellField.getProperties().get("row"), (int)cellField.getProperties().get("col")).isFixed()) {
-            baseStyle += " -fx-background-color: #d3d3d3; -fx-text-fill: black;";
+        int row = (int)cellField.getProperties().get("row");
+        int col = (int)cellField.getProperties().get("col");
+
+        cellField.getStyleClass().removeAll("sudoku-cell-selected", "sudoku-cell-error", "sudoku-cell-hint");
+
+        StringBuilder style = new StringBuilder();
+
+        // Bordes base
+        style.append("-fx-border-style: solid; ");
+
+        // Bordes LEFT
+        if (col == 0) {
+            style.append("-fx-border-left-width: 0; ");
+        } else if (col == 3) {
+            style.append("-fx-border-left-width: 4; -fx-border-left-color: #2C3E50; ");
         } else {
-            baseStyle += " -fx-background-color: white; -fx-text-fill: black;";
+            style.append("-fx-border-left-width: 1; -fx-border-left-color: #BDC3C7; ");
         }
-        cellField.setStyle(baseStyle);
+
+        // Bordes RIGHT
+        if (col == 5) {
+            style.append("-fx-border-right-width: 0; ");
+        } else if (col == 2) {
+            style.append("-fx-border-right-width: 4; -fx-border-right-color: #2C3E50; ");
+        } else {
+            style.append("-fx-border-right-width: 1; -fx-border-right-color: #BDC3C7; ");
+        }
+
+        // Bordes TOP
+        if (row == 0) {
+            style.append("-fx-border-top-width: 0; ");
+        } else if (row == 2 || row == 4) {
+            style.append("-fx-border-top-width: 4; -fx-border-top-color: #2C3E50; ");
+        } else {
+            style.append("-fx-border-top-width: 1; -fx-border-top-color: #BDC3C7; ");
+        }
+
+        // Bordes BOTTOM
+        if (row == 5) {
+            style.append("-fx-border-bottom-width: 0; ");
+        } else if (row == 1 || row == 3) {
+            style.append("-fx-border-bottom-width: 4; -fx-border-bottom-color: #2C3E50; ");
+        } else {
+            style.append("-fx-border-bottom-width: 1; -fx-border-bottom-color: #BDC3C7; ");
+        }
+
+        // Aplicar estilos según el estado
+        if (isError) {
+            style.append("-fx-background-color: #FFCDD2; -fx-text-fill: #C62828; ");
+            cellField.getStyleClass().add("sudoku-cell-error");
+        } else if (isSelected) {
+            style.append("-fx-background-color: #BBDEFB; -fx-text-fill: #1565C0; ");
+            cellField.getStyleClass().add("sudoku-cell-selected");
+        } else if (model.getCell(row, col).isFixed()) {
+            style.append("-fx-background-color: #E8EAF6; -fx-text-fill: #3F51B5; -fx-font-weight: bold; ");
+        } else {
+            style.append("-fx-background-color: white; -fx-text-fill: #2C3E50; ");
+        }
+
+        cellField.setStyle(style.toString());
     }
 
-    /**
-     * Handles the "Check Board" button action (HU-3).
-     */
     @FXML
     private void handleCheckBoard() {
         if (model.isBoardSolved()) {
-            showAlert(Alert.AlertType.INFORMATION, "Congratulations!", "You have solved the Sudoku puzzle correctly!");
+            showStyledAlert(Alert.AlertType.INFORMATION, "🎉 ¡Felicitaciones!",
+                    "¡Has resuelto el Sudoku correctamente! Eres un maestro de la lógica.");
         } else {
-            showAlert(Alert.AlertType.ERROR, "Board Check", "The board is not yet solved or contains errors (highlighted in red).");
+            showStyledAlert(Alert.AlertType.ERROR, "❌ Verificación del Tablero",
+                    "El tablero aún no está resuelto o contiene errores (resaltados en rojo).");
         }
         updateView();
     }
 
-    /**
-     * Handles the "Hint" button action (HU-4).
-     */
     @FXML
     private void handleHelpOption() {
         Cell hint = model.getHint();
         if (hint != null) {
             model.setCellValue(hint.getRow(), hint.getCol(), hint.getValue());
             updateView();
+
             TextField cellField = cellFields.get(getKey(hint.getRow(), hint.getCol()));
-            cellField.setStyle(cellField.getStyle() + " -fx-background-color: #90ee90;");
-            messageLabel.setText(String.format("Hint provided: %d placed at (%d, %d).", hint.getValue(), hint.getRow() + 1, hint.getCol() + 1));
-            if (model.isBoardSolved()) { handleVictory(); }
+            String currentStyle = cellField.getStyle();
+            cellField.setStyle(currentStyle + " -fx-background-color: #C8E6C9; -fx-text-fill: #2E7D32;");
+            cellField.getStyleClass().add("sudoku-cell-hint");
+
+            messageLabel.setText(String.format("💡 Pista proporcionada: %d colocado en (%d, %d).",
+                    hint.getValue(), hint.getRow() + 1, hint.getCol() + 1));
+
+            if (model.isBoardSolved()) {
+                handleVictory();
+            }
         } else {
-            showAlert(Alert.AlertType.INFORMATION, "Hint", "The board is already complete or no valid move is possible.");
+            showStyledAlert(Alert.AlertType.INFORMATION, "💡 Pista",
+                    "El tablero ya está completo o no hay movimientos válidos posibles.");
         }
     }
 
-    /**
-     * MÉTODO NUEVO: Handles the "Restart Game" button action.
-     */
     @FXML
     private void handleRestartGame() {
         model.resetBoard();
+
+        for (int row = 0; row < SIZE; row++) {
+            for (int col = 0; col < SIZE; col++) {
+                Cell cellModel = model.getCell(row, col);
+                TextField cellField = cellFields.get(getKey(row, col));
+
+                cellField.setText(cellModel.getValue() != 0 ? String.valueOf(cellModel.getValue()) : "");
+                cellField.setEditable(false);
+
+                cellField.getStyleClass().removeAll("sudoku-cell-selected", "sudoku-cell-error", "sudoku-cell-hint");
+
+                applyGridStyling(cellField, row, col);
+            }
+        }
+
+        selectedCell = null;
         updateView();
-        messageLabel.setText("Juego reiniciado. ¡Buena suerte!");
+        messageLabel.setText("🔄 ¡Juego reiniciado! Nuevo desafío cargado. ¡Buena suerte!");
     }
 
     private void handleVictory() {
-        showAlert(Alert.AlertType.CONFIRMATION, "Victory!", "You have won! The game is complete.");
+        showStyledAlert(Alert.AlertType.CONFIRMATION, "🏆 ¡VICTORIA!",
+                "¡Felicitaciones! Has completado el Sudoku exitosamente.\n\n¡Eres un verdadero maestro del pensamiento lógico! 🎊");
+        messageLabel.setText("🏆 ¡GANASTE! Presiona 'Reiniciar' para un nuevo desafío.");
     }
 
     private void showAlert(Alert.AlertType type, String title, String content) {
@@ -251,6 +338,28 @@ public class SudokuController implements I_InputHandler {
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(content);
+        alert.showAndWait();
+    }
+
+    private void showStyledAlert(Alert.AlertType type, String title, String content) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+
+        alert.getDialogPane().setStyle(
+                "-fx-font-family: 'Segoe UI', Arial, sans-serif; " +
+                        "-fx-font-size: 14px; " +
+                        "-fx-background-color: #f5f7fa; " +
+                        "-fx-padding: 20;"
+        );
+
+        alert.getDialogPane().lookup(".content.label").setStyle(
+                "-fx-font-size: 14px; " +
+                        "-fx-text-fill: #2C3E50; " +
+                        "-fx-padding: 10;"
+        );
+
         alert.showAndWait();
     }
 }

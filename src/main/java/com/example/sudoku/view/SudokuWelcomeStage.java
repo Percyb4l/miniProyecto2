@@ -12,11 +12,10 @@ import java.io.IOException;
  */
 public class SudokuWelcomeStage extends Stage {
 
-    private static SudokuWelcomeStage instance; // 1. Variable estática para la única instancia
+    private static SudokuWelcomeStage instance;
 
-    // RUTA FXML: Asegúrate de que esta ruta coincida con el nombre de tu archivo FXML
     private static final String FXML_PATH = "/com/example/sudoku/sudoku-welcome-view.fxml";
-    private static final String APP_TITLE = "Sudoku Welcome";
+    private static final String APP_TITLE = "Sudoku 6×6 - Bienvenida"; // CORREGIDO: Título más largo
 
     /**
      * Constructor privado para prevenir la creación de instancias externas.
@@ -28,18 +27,18 @@ public class SudokuWelcomeStage extends Stage {
         this.setTitle(APP_TITLE);
         this.setScene(new Scene(root));
         this.setResizable(false);
+
+        // AÑADIDO: Centrar la ventana en la pantalla
+        this.centerOnScreen();
     }
 
     /**
      * Método de acceso Singleton. Crea la instancia si no existe o la retorna.
-     * Si el método getInstance() estaba vacío, AÑADE TODO ESTE BLOQUE.
      */
     public static SudokuWelcomeStage getInstance() throws IOException {
         if (instance == null) {
-            // 2. Crea la instancia llamando al constructor privado
             instance = new SudokuWelcomeStage();
         }
-        // 3. Retorna la única instancia
         return instance;
     }
 }
