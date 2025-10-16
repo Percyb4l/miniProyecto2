@@ -18,33 +18,38 @@ public class SudokuWelcomeController {
     @FXML
     private TextField nicknameTxt;
 
+    // Este método es para que el jugador pueda darle a Enter en el campo de texto y empezar
+    // el juego, en vez de tener que hacer clic en el botón. Es más cómodo.
     /**
-     * Maneja el evento de presión de tecla en el TextField (NUEVO MÉTODO).
-     * Si la tecla presionada es ENTER, llama a handlePlay.
-     * @param event El evento de teclado.
-     * @throws IOException Si ocurre un error de carga.
+     * Handles the key press event on the TextField.
+     * If the pressed key is ENTER, it calls handlePlay.
+     * @param event The keyboard event.
+     * @throws IOException If a loading error occurs.
      */
     @FXML
     void handleEnterKey(KeyEvent event) throws IOException {
         if (event.getCode() == KeyCode.ENTER) {
-            // Llama a la lógica de inicio del juego
+            // Call the game start logic
             handlePlay(new ActionEvent());
-            event.consume(); // Consume el evento para que no se propague
+            event.consume(); // Consume the event so it doesn't propagate
         }
     }
 
+    // Esta es la acción principal. Cuando el jugador le da al botón 'Jugar', este método se activa.
+    // Lo que hace es esconder la ventana de bienvenida y mostrar la del juego.
     /**
      * Handles the 'Play Sudoku' button press, which initiates the game.
-     * @param event El evento de acción (puede ser simulado por handleEnterKey).
+     * It hides the welcome screen and shows the main game screen.
+     * @param event The action event (can be simulated by handleEnterKey).
      * @throws IOException If the FXML for the SudokuGameStage cannot be loaded.
      */
     @FXML
     void handlePlay(ActionEvent event) throws IOException {
         try {
-            // 1. Oculta la ventana de bienvenida (Singleton)
+            // Hide the welcome window (using the Singleton instance)
             SudokuWelcomeStage.getInstance().hide();
 
-            // 2. Muestra la ventana del juego (Singleton). Si no existe, la crea.
+            // Show the game window. If it doesn't exist, it creates it.
             SudokuGameStage gameStage = SudokuGameStage.getInstance();
             gameStage.show();
 

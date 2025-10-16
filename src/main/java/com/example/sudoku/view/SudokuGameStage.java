@@ -16,10 +16,10 @@ public class SudokuGameStage extends Stage {
     private SudokuController controller;
     private static SudokuGameStage instance;
     private static final String FXML_PATH = "/com/example/sudoku/sudoku-game-view.fxml";
-    private static final String APP_TITLE = "Sudoku 6×6 - Juego Principal"; // CORREGIDO: Título más descriptivo
+    private static final String APP_TITLE = "Sudoku 6×6 - Main Game"; // FIXED: More descriptive title
 
     /**
-     * Constructor privado para prevenir la creación de instancias externas.
+     * Private constructor to prevent external instantiation.
      */
     private SudokuGameStage() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource(FXML_PATH));
@@ -32,15 +32,15 @@ public class SudokuGameStage extends Stage {
         this.setScene(scene);
         this.setResizable(false);
 
-        // AÑADIDO: Centrar la ventana en la pantalla
+        // Center the window on the screen
         this.centerOnScreen();
 
-        // Inicializa el tablero después de cargar la vista
+        // Initializes the board after loading the view
         controller.initializeBoard();
     }
 
     /**
-     * Método de acceso Singleton. Crea la instancia si no existe o la retorna.
+     * Singleton access method. Creates the instance if it doesn't exist, or returns it.
      */
     public static SudokuGameStage getInstance() throws IOException {
         if (instance == null) {

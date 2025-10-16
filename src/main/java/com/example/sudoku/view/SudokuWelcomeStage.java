@@ -3,6 +3,7 @@ package com.example.sudoku.view;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image; // Importar la clase Image
 import javafx.stage.Stage;
 import java.io.IOException;
 
@@ -15,7 +16,9 @@ public class SudokuWelcomeStage extends Stage {
     private static SudokuWelcomeStage instance;
 
     private static final String FXML_PATH = "/com/example/sudoku/sudoku-welcome-view.fxml";
-    private static final String APP_TITLE = "Sudoku 6×6 - Bienvenida"; // CORREGIDO: Título más largo
+    private static final String APP_TITLE = "Sudoku 6×6 - Bienvenida";
+    //la ruta del ícono
+    private static final String ICON_PATH = "/com/example/sudoku/favicon.png";
 
     /**
      * Constructor privado para prevenir la creación de instancias externas.
@@ -27,13 +30,13 @@ public class SudokuWelcomeStage extends Stage {
         this.setTitle(APP_TITLE);
         this.setScene(new Scene(root));
         this.setResizable(false);
-
-        // AÑADIDO: Centrar la ventana en la pantalla
         this.centerOnScreen();
+
+        this.getIcons().add(new Image(getClass().getResource(ICON_PATH).toExternalForm()));
     }
 
     /**
-     * Método de acceso Singleton. Crea la instancia si no existe o la retorna.
+     * Singleton access method. Creates the instance if it doesn't exist, or returns it.
      */
     public static SudokuWelcomeStage getInstance() throws IOException {
         if (instance == null) {

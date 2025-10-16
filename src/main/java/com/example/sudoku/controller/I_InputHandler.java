@@ -4,7 +4,7 @@ import javafx.scene.input.KeyEvent;
 
 /**
  * Interface for handling specific inputs (Criterio: Interfaces).
- * Allows the KeyInputAdapter to communicate key events back to the com.example.sudoku.main.main Controller.
+ * Allows the KeyInputAdapter to communicate key events back to the com.example.sudoku.main Controller.
  */
 public interface I_InputHandler {
 
