@@ -6,15 +6,14 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 /**
- * Main application class (Lanzador).
+ * Main application class (Launcher).
  * This class serves as the entry point for the JavaFX application.
  */
-public class Main extends Application { // CLASE LLAMADA 'main' EN MINÚSCULAS
+public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) {
         try {
-            // Si getInstance() estaba en rojo, esta línea debería ahora compilar
             SudokuWelcomeStage welcomeStage = SudokuWelcomeStage.getInstance();
             welcomeStage.show();
         } catch (IOException e) {
@@ -24,11 +23,11 @@ public class Main extends Application { // CLASE LLAMADA 'main' EN MINÚSCULAS
     }
 
     /**
-     * Método main estándar de Java para lanzar la aplicación.
+     * Standard Java main method for launching the application.
      * @param args Command line arguments.
      */
     public static void main(String[] args) {
-        // Llama al método launch() de javafx.application.Application
+        // Calls the launch() method from javafx.application.Application
         launch(args);
     }
 }

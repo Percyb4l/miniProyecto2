@@ -1,0 +1,227 @@
+/* ============================================
+   SUDOKU 6x6 - ESTILOS PRINCIPALES
+   ============================================ */
+
+/* --- PALETA DE COLORES --- */
+.root {
+    -fx-primary: #2C3E50;
+    -fx-secondary: #3498DB;
+    -fx-accent: #E74C3C;
+    -fx-success: #27AE60;
+    -fx-warning: #F39C12;
+    -fx-light: #ECF0F1;
+    -fx-dark: #34495E;
+}
+
+/* --- ESTILOS GENERALES --- */
+.root {
+    -fx-font-family: "Segoe UI", "Arial", sans-serif;
+    -fx-background-color: linear-gradient(to bottom right, #667eea 0%, #764ba2 100%);
+}
+
+/* --- VENTANA DE BIENVENIDA MEJORADA --- */
+/*noinspection ALL*/
+#welcomePane {
+    -fx-background-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+#welcomeContainer {
+    -fx-background-color: white;
+    -fx-background-radius: 25;
+    -fx-padding: 50 40 50 40;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 25, 0, 0, 10);
+}
+
+/* TextField mejorado */
+#nicknameTxt {
+    -fx-font-size: 16px;
+    -fx-padding: 15 20;
+    -fx-background-color: #F8F9FA;
+    -fx-border-color: #E0E0E0;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 5, 0, 0, 2);
+    -fx-prompt-text-fill: #BDC3C7;
+}
+
+#nicknameTxt:focused {
+    -fx-border-color: #667eea;
+    -fx-background-color: white;
+    -fx-effect: dropshadow(gaussian, rgba(102, 126, 234, 0.3), 10, 0, 0, 3);
+}
+
+#nicknameTxt:hover {
+    -fx-border-color: #667eea;
+    -fx-background-color: white;
+}
+
+/* Botón de jugar mejorado */
+#playButton {
+    -fx-background-color: linear-gradient(to bottom, #667eea, #764ba2);
+    -fx-text-fill: white;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-padding: 18 50;
+    -fx-background-radius: 30;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(102, 126, 234, 0.4), 10, 0, 0, 5);
+}
+
+#playButton:hover {
+    -fx-background-color: linear-gradient(to bottom, #7c8df0, #8a5bb8);
+    -fx-scale-y: 1.08;
+    -fx-scale-x: 1.08;
+    -fx-effect: dropshadow(gaussian, rgba(102, 126, 234, 0.6), 15, 0, 0, 8);
+}
+
+#playButton:pressed {
+    -fx-background-color: linear-gradient(to bottom, #5568d3, #643d8f);
+    -fx-translate-y: 3;
+    -fx-scale-y: 1.05;
+    -fx-scale-x: 1.05;
+}
+
+/* --- VENTANA DEL JUEGO --- */
+#gamePane {
+    -fx-background-color: linear-gradient(to bottom, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+#gameTitle {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2C3E50;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 3, 0, 0, 2);
+}
+
+/* --- GRID DEL SUDOKU --- */
+#sudokuGrid {
+    -fx-background-color: white;
+    -fx-padding: 20;
+    -fx-background-radius: 15;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 15, 0, 0, 5);
+}
+
+/* Celdas del Sudoku */
+.sudoku-cell {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-alignment: center;
+    -fx-background-color: white;
+    -fx-border-color: #BDC3C7;
+    -fx-border-width: 1;
+    -fx-background-radius: 5;
+    -fx-border-radius: 5;
+    -fx-text-fill: #2C3E50;
+}
+
+.sudoku-cell:focused {
+    -fx-background-color: #E3F2FD;
+    -fx-border-color: #2196F3;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(gaussian, rgba(33, 150, 243, 0.3), 8, 0, 0, 0);
+}
+
+.sudoku-cell-fixed {
+    -fx-background-color: #E8EAF6;
+    -fx-font-weight: bold;
+    -fx-text-fill: #3F51B5;
+}
+
+.sudoku-cell-error {
+    -fx-background-color: #FFCDD2;
+    -fx-text-fill: #C62828;
+    -fx-border-color: #E53935;
+    -fx-border-width: 2;
+}
+
+.sudoku-cell-selected {
+    -fx-background-color: #BBDEFB;
+    -fx-border-color: #1976D2;
+    -fx-border-width: 2;
+}
+
+.sudoku-cell-hint {
+    -fx-background-color: #C8E6C9;
+    -fx-text-fill: #2E7D32;
+}
+
+/* --- BOTONES DEL JUEGO --- */
+.game-button {
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-padding: 12 25;
+    -fx-background-radius: 20;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 5, 0, 0, 3);
+}
+
+.game-button:hover {
+    -fx-scale-y: 1.05;
+    -fx-scale-x: 1.05;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 8, 0, 0, 4);
+}
+
+.game-button:pressed {
+    -fx-translate-y: 2;
+}
+
+#checkButton {
+    -fx-background-color: linear-gradient(to bottom, #27AE60, #229954);
+    -fx-text-fill: white;
+}
+
+#checkButton:hover {
+    -fx-background-color: linear-gradient(to bottom, #2ECC71, #27AE60);
+}
+
+#restartButton {
+    -fx-background-color: linear-gradient(to bottom, #F39C12, #E67E22);
+    -fx-text-fill: white;
+}
+
+#restartButton:hover {
+    -fx-background-color: linear-gradient(to bottom, #F5B041, #F39C12);
+}
+
+#helpButton {
+    -fx-background-color: linear-gradient(to bottom, #9B59B6, #8E44AD);
+    -fx-text-fill: white;
+}
+
+#helpButton:hover {
+    -fx-background-color: linear-gradient(to bottom, #AF7AC5, #9B59B6);
+}
+
+/* --- MENSAJE DE ESTADO --- */
+#messageLabel {
+    -fx-font-size: 15px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #34495E;
+    -fx-background-color: rgba(236, 240, 241, 0.8);
+    -fx-padding: 10 20;
+    -fx-background-radius: 10;
+}
+
+/* --- ANIMACIONES --- */
+@keyframes fadeIn {
+    from { -fx-opacity: 0; }
+    to { -fx-opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { -fx-translate-y: 20; -fx-opacity: 0; }
+    to { -fx-translate-y: 0; -fx-opacity: 1; }
+}
+
+/* --- ICONOS Y DECORACIONES --- */
+.icon {
+    -fx-font-family: "FontAwesome";
+    -fx-font-size: 18px;
+}
+
+/* --- RESPONSIVE --- */
+.button-container {
+    -fx-spacing: 15;
+    -fx-padding: 20 0 0 0;
+}
