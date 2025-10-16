@@ -4,6 +4,7 @@ import com.example.sudoku.controller.SudokuController;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import java.io.IOException;
 
@@ -17,6 +18,7 @@ public class SudokuGameStage extends Stage {
     private static SudokuGameStage instance;
     private static final String FXML_PATH = "/com/example/sudoku/sudoku-game-view.fxml";
     private static final String APP_TITLE = "Sudoku 6×6 - Main Game"; // FIXED: More descriptive title
+    private static final String ICON_PATH = "/com/example/sudoku/favicon.png";
 
     /**
      * Private constructor to prevent external instantiation.
@@ -34,6 +36,7 @@ public class SudokuGameStage extends Stage {
 
         // Center the window on the screen
         this.centerOnScreen();
+        this.getIcons().add(new Image(getClass().getResource(ICON_PATH).toExternalForm()));
 
         // Initializes the board after loading the view
         controller.initializeBoard();

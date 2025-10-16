@@ -31,7 +31,6 @@ public class SudokuWelcomeStage extends Stage {
         this.setScene(new Scene(root));
         this.setResizable(false);
         this.centerOnScreen();
-
         this.getIcons().add(new Image(getClass().getResource(ICON_PATH).toExternalForm()));
     }
 
