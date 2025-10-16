@@ -6,11 +6,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
  * The Model component in MVC. Manages the Sudoku board state and game logic.
+ * Enhanced version to ensure each 2x3 block starts with exactly 2 fixed numbers.
  */
 public class SudokuModel {
 
@@ -19,8 +21,6 @@ public class SudokuModel {
     private static final int BLOCK_ROWS = 2;
     private static final int BLOCK_COLS = 3;
 
-    // Este es el constructor. Solo crea el hashmap para el tablero
-    // y llama a resetBoard para que arme el primer juego.
     /**
      * Constructs a new SudokuModel and initializes the board.
      */
@@ -29,7 +29,6 @@ public class SudokuModel {
         resetBoard();
     }
 
-    // Un helper simple para crear una clave única para el hashmap, como "3_4" para la fila 3, col 4.
     /**
      * Generates a unique string key for a cell based on its coordinates.
      * @param row The cell's row.
@@ -40,16 +39,14 @@ public class SudokuModel {
         return row + "_" + col;
     }
 
-    // Este es el método importante para empezar un juego nuevo. Coge un tablero resuelto,
-    // baraja los números (o sea, todos los 1 se vuelven 5, etc.) y luego le abre
-    // huecos para crear el tablero que ve el jugador. Así me aseguro que siempre tenga solución.
     /**
      * Resets the board by generating a new, random, solvable puzzle.
      * It starts from a solved template, shuffles the numbers, and then clears
-     * most of the cells, leaving only a few fixed clues.
+     * most of the cells, leaving exactly 2 fixed numbers per 2x3 block.
+     * This ensures compliance with HU-1 requirement.
      */
     public void resetBoard() {
-        // 1. Empezamos con una plantilla de un Sudoku 6x6 ya resuelto y válido.
+        // 1. Start with a valid solved 6x6 Sudoku template
         int[][] solvedTemplate = {
                 {1, 2, 3, 4, 5, 6},
                 {4, 5, 6, 1, 2, 3},
@@ -59,8 +56,7 @@ public class SudokuModel {
                 {6, 4, 5, 3, 1, 2}
         };
 
-        // Creamos una lista de números (1-6) y la barajamos para la aleatoriedad.
-        // Esto nos servirá para mapear los números. Ej: todos los 1 se volverán 5, los 2 se volverán 3, etc.
+        // 2. Create a number mapping for randomization (1->3, 2->5, etc.)
         List<Integer> numbers = IntStream.rangeClosed(1, SIZE).boxed().collect(Collectors.toList());
         Collections.shuffle(numbers);
         Map<Integer, Integer> numberMap = new HashMap<>();
@@ -68,7 +64,7 @@ public class SudokuModel {
             numberMap.put(i + 1, numbers.get(i));
         }
 
-        // Creamos un nuevo tablero resuelto y aleatorio aplicando el mapeo de números.
+        // 3. Apply the mapping to create a randomized solved board
         int[][] randomizedSolvedBoard = new int[SIZE][SIZE];
         for (int r = 0; r < SIZE; r++) {
             for (int c = 0; c < SIZE; c++) {
@@ -76,20 +72,35 @@ public class SudokuModel {
             }
         }
 
-        // Creamos el tablero del puzle final, "quitando" las piezas que no queremos.
+        // 4. Create the puzzle by selecting exactly 2 cells per block as fixed
+        // There are 6 blocks in a 6x6 grid (3 blocks horizontally × 2 blocks vertically)
         int[][] initialBoard = new int[SIZE][SIZE];
-        List<int[]> fixedPositions = Arrays.asList(
-                new int[]{0, 0}, new int[]{0, 3},
-                new int[]{2, 0}, new int[]{2, 3},
-                new int[]{4, 0}, new int[]{4, 3}
-        );
+        Random random = new Random();
 
-        for (int[] pos : fixedPositions) {
-            int row = pos[0];
-            int col = pos[1];
-            initialBoard[row][col] = randomizedSolvedBoard[row][col];
+        // Process each 2x3 block
+        for (int blockRow = 0; blockRow < SIZE / BLOCK_ROWS; blockRow++) {
+            for (int blockCol = 0; blockCol < SIZE / BLOCK_COLS; blockCol++) {
+                // Get all positions in this block
+                List<int[]> blockPositions = new ArrayList<>();
+                int startRow = blockRow * BLOCK_ROWS;
+                int startCol = blockCol * BLOCK_COLS;
+
+                for (int r = startRow; r < startRow + BLOCK_ROWS; r++) {
+                    for (int c = startCol; c < startCol + BLOCK_COLS; c++) {
+                        blockPositions.add(new int[]{r, c});
+                    }
+                }
+
+                // Shuffle and select exactly 2 positions
+                Collections.shuffle(blockPositions, random);
+                for (int i = 0; i < 2; i++) {
+                    int[] pos = blockPositions.get(i);
+                    initialBoard[pos[0]][pos[1]] = randomizedSolvedBoard[pos[0]][pos[1]];
+                }
+            }
         }
 
+        // 5. Initialize the board with Cell objects
         board.clear();
         for (int row = 0; row < SIZE; row++) {
             for (int col = 0; col < SIZE; col++) {
@@ -100,7 +111,6 @@ public class SudokuModel {
         validateAllCells();
     }
 
-    // Un getter simple para sacar una celda del tablero usando su fila y columna.
     /**
      * Retrieves a cell from the board at the specified coordinates.
      * @param row The row of the cell.
@@ -111,9 +121,6 @@ public class SudokuModel {
         return board.get(getKey(row, col));
     }
 
-    // Esto lo llama el controller cuando el jugador pone un número. Revisa que
-    // la celda no sea una de las fijas, le pone el valor nuevo, y de una
-    // corre la validación para ver si hay errores.
     /**
      * Sets the value of a cell, if it's not a fixed cell.
      * After setting the value, it triggers a full board validation.
@@ -132,20 +139,27 @@ public class SudokuModel {
         return false;
     }
 
-    // El método principal de chequeo. Primero borra todos los errores viejos.
-    // Luego recorre cada fila, columna y bloque para encontrar números repetidos.
     /**
      * Runs a full validation on the board. It checks every row, column, and
      * block for duplicate numbers and updates the error state of each cell accordingly.
      */
     public void validateAllCells() {
+        // Clear all errors first
         for (Cell cell : board.values()) {
             cell.setError(false);
         }
+
+        // Validate rows
         for (int i = 0; i < SIZE; i++) {
             validateLine(getCellsInRow(i));
+        }
+
+        // Validate columns
+        for (int i = 0; i < SIZE; i++) {
             validateLine(getCellsInCol(i));
         }
+
+        // Validate blocks
         for (int br = 0; br < SIZE / BLOCK_ROWS; br++) {
             for (int bc = 0; bc < SIZE / BLOCK_COLS; bc++) {
                 validateLine(getCellsInBlock(br * BLOCK_ROWS, bc * BLOCK_COLS));
@@ -153,9 +167,6 @@ public class SudokuModel {
         }
     }
 
-    // Un helper para validateAllCells. Coge un grupo de celdas (fila, columna o bloque)
-    // y usa un hashmap para contar cuántas veces aparece cada número.
-    // Si un número sale más de una vez, marca la celda como error.
     /**
      * Validates a single line (a row, column, or block) for duplicate numbers.
      * @param cells An array of Cells representing the line to check.
@@ -176,7 +187,6 @@ public class SudokuModel {
         }
     }
 
-    // Coge todas las celdas de una fila y las mete en un array.
     /**
      * Gets all cells in a specific row.
      * @param row The index of the row.
@@ -190,7 +200,6 @@ public class SudokuModel {
         return cells;
     }
 
-    // Coge todas las celdas de una columna y las mete en un array.
     /**
      * Gets all cells in a specific column.
      * @param col The index of the column.
@@ -204,7 +213,6 @@ public class SudokuModel {
         return cells;
     }
 
-    // Coge todas las celdas de un bloque 2x3.
     /**
      * Gets all cells in a specific 2x3 block.
      * @param startRow The starting row of the block.
@@ -222,8 +230,6 @@ public class SudokuModel {
         return cells;
     }
 
-    // Revisa si el jugador ya ganó. Primero corre la validación, y luego
-    // simplemente mira si alguna celda está vacía o tiene un error.
     /**
      * Checks if the entire board is solved correctly. A solved board
      * has no empty cells (value 0) and no validation errors.
@@ -239,15 +245,103 @@ public class SudokuModel {
         return true;
     }
 
-    // La lógica del botón de pista. Hace una copia del tablero, corre el método 'solve'
-    // en la copia, y luego busca el primer espacio vacío para darle al jugador la respuesta.
     /**
-     * Provides a hint by finding the solution for the first available empty cell.
-     * It creates a copy of the current board and runs the solver on it.
-     * @return A new Cell object containing the correct value for an empty cell,
+     * Checks if there are any validation errors on the board.
+     * @return true if there are errors, false otherwise.
+     */
+    public boolean hasErrors() {
+        for (Cell cell : board.values()) {
+            if (cell.isError()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Provides a smart, non-linear hint by finding a random empty cell
+     * and returning its correct value from the solved board.
+     * This ensures hints are not always given in sequential order.
+     * @return A new Cell object containing the correct value for a randomly selected empty cell,
      * or null if the board is already solved or unsolvable.
      */
     public Cell getHint() {
+        // 1. Collect all empty cells
+        List<int[]> emptyCells = new ArrayList<>();
+        for (int r = 0; r < SIZE; r++) {
+            for (int c = 0; c < SIZE; c++) {
+                if (getCell(r, c).getValue() == 0) {
+                    emptyCells.add(new int[]{r, c});
+                }
+            }
+        }
+
+        // If no empty cells, return null
+        if (emptyCells.isEmpty()) {
+            return null;
+        }
+
+        // 2. Solve the board to get correct values
+        int[][] boardCopy = new int[SIZE][SIZE];
+        for (int r = 0; r < SIZE; r++) {
+            for (int c = 0; c < SIZE; c++) {
+                boardCopy[r][c] = getCell(r, c).getValue();
+            }
+        }
+
+        if (!solve(boardCopy)) {
+            return null; // Unsolvable board
+        }
+
+        // 3. Select a RANDOM empty cell (non-linear hint)
+        Random random = new Random();
+        int[] selectedCell = emptyCells.get(random.nextInt(emptyCells.size()));
+        int row = selectedCell[0];
+        int col = selectedCell[1];
+
+        return new Cell(row, col, boardCopy[row][col]);
+    }
+
+    /**
+     * Provides an intelligent hint by finding the empty cell with the fewest
+     * possible valid options (most constrained cell). This gives a more
+     * strategic hint that helps the player learn Sudoku techniques.
+     * @return A new Cell object with the correct value for the most constrained cell,
+     * or null if no empty cells exist.
+     */
+    public Cell getSmartHint() {
+        // 1. Find the empty cell with fewest possible values
+        int minOptions = SIZE + 1;
+        List<int[]> bestCells = new ArrayList<>();
+
+        for (int r = 0; r < SIZE; r++) {
+            for (int c = 0; c < SIZE; c++) {
+                if (getCell(r, c).getValue() == 0) {
+                    // Count how many numbers are possible for this cell
+                    int possibleCount = countPossibleValues(r, c);
+
+                    if (possibleCount < minOptions) {
+                        minOptions = possibleCount;
+                        bestCells.clear();
+                        bestCells.add(new int[]{r, c});
+                    } else if (possibleCount == minOptions) {
+                        bestCells.add(new int[]{r, c});
+                    }
+                }
+            }
+        }
+
+        if (bestCells.isEmpty()) {
+            return null;
+        }
+
+        // If multiple cells have the same minimum options, pick randomly among them
+        Random random = new Random();
+        int[] selectedCell = bestCells.get(random.nextInt(bestCells.size()));
+        int row = selectedCell[0];
+        int col = selectedCell[1];
+
+        // Get the correct value by solving
         int[][] boardCopy = new int[SIZE][SIZE];
         for (int r = 0; r < SIZE; r++) {
             for (int c = 0; c < SIZE; c++) {
@@ -256,20 +350,40 @@ public class SudokuModel {
         }
 
         if (solve(boardCopy)) {
-            for (int r = 0; r < SIZE; r++) {
-                for (int c = 0; c < SIZE; c++) {
-                    if (getCell(r, c).getValue() == 0) {
-                        return new Cell(r, c, boardCopy[r][c]);
-                    }
-                }
-            }
+            return new Cell(row, col, boardCopy[row][col]);
         }
+
         return null;
     }
 
-    // Este es el solver recursivo, el 'backtracking' que vimos en clase.
-    // Intenta un número, se llama a sí mismo para resolver el resto, y si falla,
-    // se devuelve y prueba con el siguiente número. Es pesado pero funciona.
+    /**
+     * Counts how many valid numbers can be placed in a given cell.
+     * Used by getSmartHint() to find the most constrained cells.
+     * @param row The row of the cell.
+     * @param col The column of the cell.
+     * @return The count of possible valid values (1-6).
+     */
+    private int countPossibleValues(int row, int col) {
+        int count = 0;
+        int[][] tempBoard = new int[SIZE][SIZE];
+
+        // Copy current board state
+        for (int r = 0; r < SIZE; r++) {
+            for (int c = 0; c < SIZE; c++) {
+                tempBoard[r][c] = getCell(r, c).getValue();
+            }
+        }
+
+        // Test each number 1-6
+        for (int num = 1; num <= SIZE; num++) {
+            if (isSafe(tempBoard, row, col, num)) {
+                count++;
+            }
+        }
+
+        return count;
+    }
+
     /**
      * Solves a Sudoku board using a recursive backtracking algorithm.
      * @param board A 2D integer array representing the board.
@@ -295,8 +409,6 @@ public class SudokuModel {
         return true; // Solved
     }
 
-    // Un helper para el solver. Solo revisa si un número se puede poner en un
-    // sitio sin romper las reglas (revisa fila, columna y bloque).
     /**
      * Checks if it is safe to place a number in a given cell according to Sudoku rules.
      * @param board The board state.
